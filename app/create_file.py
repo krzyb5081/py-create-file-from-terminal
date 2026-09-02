@@ -68,5 +68,4 @@ def main() -> None:
         write_to_file(target_file, content)
 
 
-if __name__ == "__main__":
-    main()
+main()

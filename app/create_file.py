@@ -3,6 +3,36 @@ import sys
 from datetime import datetime
 
 
+def get_lines() -> list[str]:
+    lines = []
+    while True:
+        line = input("Enter content line: ")
+        if line == "stop":
+            break
+        lines.append(line)
+    return lines
+
+
+def format_content(lines: list[str]) -> str:
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    numbered = [
+        f"{idx} {line}"
+        for idx, line in enumerate(lines, 1)
+    ]
+    return "\n".join([timestamp, *numbered]) + "\n"
+
+
+def write_to_file(file_path: str, content: str) -> None:
+    has_content = (
+        os.path.exists(file_path)
+        and os.path.getsize(file_path) > 0
+    )
+    with open(file_path, "a", encoding="utf-8") as f:
+        if has_content:
+            f.write("\n")
+        f.write(content)
+
+
 def main() -> None:
     args = sys.argv[1:]
     dir_parts = []
@@ -28,26 +58,14 @@ def main() -> None:
         os.makedirs(target_dir, exist_ok=True)
 
     if file_name:
-        target_file = os.path.join(target_dir, file_name) if target_dir else file_name
-
-        lines = []
-        while True:
-            line = input("Enter content line: ")
-            if line == "stop":
-                break
-            lines.append(line)
-
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        entry_blocks = [timestamp]
-        for index, text in enumerate(lines, 1):
-            entry_blocks.append(f"{index} {text}")
-        payload = "\n".join(entry_blocks) + "\n"
-
-        file_has_data = os.path.exists(target_file) and os.path.getsize(target_file) > 0
-        with open(target_file, "a", encoding="utf-8") as f:
-            if file_has_data:
-                f.write("\n")
-            f.write(payload)
+        target_file = (
+            os.path.join(target_dir, file_name)
+            if target_dir
+            else file_name
+        )
+        lines = get_lines()
+        content = format_content(lines)
+        write_to_file(target_file, content)
 
 
 if __name__ == "__main__":
